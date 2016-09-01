@@ -1,0 +1,13 @@
+{
+  "host": "localhost",
+  "port": 3030,
+  "nedb": "../data/",
+  "public": "../public/",
+  "auth": {
+    "token": {
+      "secret": "M+0y2XPQNR14DdiBb6lTl1//9FbnReMumVBEMZ779mB/rSgLfWJvtRFdTUXHDqX9XmKidsjx8DHu6oBkov6+XQ=="
+    },
+    "local": {}
+  },
+  "corsWhitelist": []
+}
