@@ -15,11 +15,12 @@
 //
 const debug = require('debug')('leancloud-storage:main');
 
-import Proto from 'uberproto';
-import filter from 'feathers-query-filters';
-import errors from 'feathers-errors';
-import { inspect } from 'util';
-//
+import _ from 'lodash';
+import rp from 'request-promise';
+import urlencode from 'urlencode';
+import Proto from "uberproto";
+import filter from "feathers-query-filters";
+import { inspect } from "util";
 
 /**
  * 用户管理服务
@@ -37,6 +38,7 @@ class Service {
       throw new Error('Storage name needs to be provided');
     }
 
+    this.apiBase = 'https://api.leancloud.cn/1.1/classes';
     this.leanCloud = options.leanCloud;
     this.name = options.name;
     this.paginate = options.paginate || {};
@@ -53,6 +55,7 @@ class Service {
    * @param params
    */
   find(params) {
+    debug(`find: params:${inspect(params)}`)
     const paginate = (params && typeof params.paginate !== 'undefined') ?
       params.paginate : this.paginate;
     const result = this._find(params, !!paginate.default, query => filter(query, paginate));
@@ -66,99 +69,81 @@ class Service {
     return this._get(id, params);
   }
 
-  create(data) {
-    debug(`create: ${inspect(data)}`)
-    var object = new this.leanCloud.Object(this.name);
-    return object.save(data)
+  create(data, params) {
+    return rp(`${this.apiBase}/${this.name}`, {
+      method: 'POST',
+      json: true,
+      headers: this._getHeaders(params),
+      body: data
+    });
   }
 
   patch(id, data, params) {
-    debug(`patch: data:${inspect(data)}, params:${inspect(params)}`)
-    var object = this.leanCloud.Object.createWithoutData(this.name, id)
-    return object.save(data)
-    // let { query, options } = multiOptions(id, this.id, params);
-    //
-    // // Run the query
-    // return nfcall(this.Model, 'update', query, {
-    //   $set: omit(data, this.id, '_id')
-    // }, options).then(() => this._findOrGet(id, params));
+    return rp(`${this.apiBase}/${this.name}/${id}`, {
+      method: 'PUT',
+      json: true,
+      headers: this._getHeaders(params),
+      body: data
+    });
   }
 
   update(id, data, params) {
-    debug(`update: data:${inspect(data)}, params:${inspect(params)}`)
     if (Array.isArray(data) || id === null) {
       return Promise.reject('Not replacing multiple records. Did you mean `patch`?');
     }
-    //
-    // let { query, options } = multiOptions(id, this.id, params);
-    //
-    // return nfcall(this.Model, 'update', query, omit(data, this.id, '_id'), options)
-    //   .then(() => this._findOrGet(id));
+    return rp(`${this.apiBase}/${this.name}/${id}`, {
+      method: 'PUT',
+      json: true,
+      headers: this._getHeaders(params),
+      body: data
+    });
   }
 
   remove(id, params) {
-    debug(`patch: params:${inspect(params)}`)
-    var object = this.leanCloud.Object.createWithoutData(this.name, id)
-    return object.destroy()
+    return rp(`${this.apiBase}/${this.name}/${id}`, {
+      method: 'DELETE',
+      json: true,
+      headers: this._getHeaders(params)
+    });
   }
 
-  _find(params, count, getFilter = filter) {
 
+  // curl -X GET \
+  // -H "X-LC-Id: 0x08VitFksfeN3orC1v9Eiif-gzGzoHsz" \
+  // -H "X-LC-Key: TLb63GxWqtXNMWagJpD9QBKS" \
+  // -H "Content-Type: application/json" \
+  // -G \
+  // --data-urlencode 'where={"pubUser":"LeanCloud官方客服"}' \
+  //   https://api.leancloud.cn/1.1/classes/Post
+  _find(params, count, getFilter = filter) {
     // Start with finding all, and limit when necessary.
     let { filters, query } = getFilter(params.query || {});
-
-    var q = new this.leanCloud.Query(this.name);
-
-    // $select uses a specific find syntax, so it has to come first.
-    if (filters.$select) {
-      q.select(filters.$select)
-    }
-
-    // Handle $sort
-    if (filters.$sort) {
-      let keys = Object.keys(filters.$sort);
-      keys.forEach(key => {
-        let value = filters.$sort[key];
-        if (value > 0) {
-          q.ascending(key);
-        } else {
-          q.descending(key);
-        }
-      });
-    }
-
-    // Handle $limit
-    if (filters.$limit) {
-      q.limit(filters.$limit);
-    }
-
-    // Handle $skip
-    if (filters.$skip) {
-      q.skip(filters.$skip);
-    }
-
-    // Execute the query
-    if (count) {
-      return Promise.all([q.find(), q.count()]).then(([data, total]) => {
+    return rp(`${this.apiBase}/${this.name}`, {
+      method: 'GET',
+      json: true,
+      headers: this._getHeaders(params),
+      qs: this._getQueryString(filters, count)
+    }).then(response => {
+      if (count) {
         return {
-          total,
+          total: response.count,
           limit: filters.$limit,
           skip: filters.$skip || 0,
-          data
+          data: response.results
         };
-      });
-    } else {
-      return q.find();
-    }
+      } else {
+        return response.results;
+      }
+    });
   }
 
   _get(id, params) {
-    var q = new this.leanCloud.Query(this.name);
-    // $select uses a specific find syntax, so it has to come first.
-    if (params && params.query && params.query.$select) {
-      q.select(params.query.$select)
-    }
-    return q.get(id)
+    return rp(`${this.apiBase}/${this.name}/${id}`, {
+      method: 'GET',
+      json: true,
+      headers: this._getHeaders(params),
+      qs: this._getQueryString(params && params.query, false)
+    });
   }
 
   _findOrGet(id, params) {
@@ -166,6 +151,52 @@ class Service {
       return this._find(params).then(page => page.data);
     }
     return this._get(id, params);
+  }
+
+  _getHeaders(params) {
+    var headers = {
+      'X-LC-Id': this.leanCloud.applicationId,
+      'X-LC-Key': this.leanCloud.applicationKey
+    };
+
+    if (params.token) {
+      headers['X-LC-Session'] = params.token;
+    }
+    return headers;
+  }
+
+  _getQueryString(query, count) {
+    var qs = {}
+    if (query) {
+      // $select uses a specific find syntax, so it has to come first.
+      if (query.$select && Array.isArray(query.$select)) {
+        qs.keys = _.join(query.$select, ',')
+      }
+
+      // Handle $sort
+      if (query.$sort) {
+        var sort = []
+        _.forEach(query.$sort, (value, key) => {
+          sort.push((value > 0) ? key : '-' + key);
+        });
+        qs.order = _.join(sort, ',');
+      }
+
+      // Handle $limit
+      if (query.$limit) {
+        qs.limit = urlencode(query.$limit);
+      }
+
+      // Handle $skip
+      if (query.$skip) {
+        qs.skip = urlencode(query.$skip);
+      }
+
+      if (count) {
+        qs.count = 1
+      }
+    }
+    return qs;
   }
 }
 

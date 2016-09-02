@@ -43,7 +43,7 @@ export default function(config = {}) {
     });
 
     // 如果不希望使用 masterKey 权限，可以将下面一行删除
-    AV.Cloud.useMasterKey();
+    // AV.Cloud.useMasterKey();
 
     app.leanCloud = AV;
   }

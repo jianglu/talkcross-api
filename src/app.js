@@ -31,6 +31,8 @@ const services = require('./services');
 
 const leanCloud = require('./plugins/leanCloud');
 
+import authentication from 'leancloud-authentication';
+
 const app = feathers();
 
 app.configure(configuration(path.join(__dirname, '..')));
@@ -53,6 +55,7 @@ app.use(compress())
   .configure(hooks())
   .configure(rest())
   .configure(leanCloud())
+  .configure(authentication())
   .configure(services)
   .configure(middleware);
 

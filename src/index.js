@@ -15,9 +15,11 @@
 // limitations under the License.
 //
 
+const feathers = require('feathers');
 const app = require('./app');
 const port = app.get('port');
-const server = app.listen(port);
+
+const server = feathers().use('/api/v1', app).listen(port);
 
 server.on('listening', () => {
   console.log(`Feathers application started on ${app.get('host')}:${port}`);
