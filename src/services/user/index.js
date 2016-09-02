@@ -1,20 +1,29 @@
 'use strict';
+//
+// Copyright (C) 2016 Changzhou TwistSnake Co.,Ltd
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
 
-const path = require('path');
-const NeDB = require('nedb');
-const service = require('feathers-nedb');
+const service = require('leancloud-storage');
 const hooks = require('./hooks');
 
 module.exports = function() {
   const app = this;
 
-  const db = new NeDB({
-    filename: path.join(app.get('nedb'), 'users.db'),
-    autoload: true
-  });
-
   let options = {
-    Model: db,
+    name: "_User",
+    leanCloud: app.leanCloud,
     paginate: {
       default: 5,
       max: 25

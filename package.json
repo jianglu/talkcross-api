@@ -18,8 +18,8 @@
   "scripts": {
     "test": "npm run jshint && npm run mocha",
     "jshint": "jshint src/. test/. --config",
-    "start": "babel-node src/",
-    "watch": "babel-watch src/",
+    "start": "NODE_PATH=$NODE_PATH:./modules babel-node src/",
+    "watch": "NODE_PATH=$NODE_PATH:./modules babel-watch src/",
     "mocha": "mocha test/ --compilers js:babel-core/register --recursive"
   },
   "dependencies": {
@@ -32,10 +32,12 @@
     "feathers-errors": "^2.4.0",
     "feathers-hooks": "^1.5.7",
     "feathers-nedb": "^2.4.1",
+    "feathers-query-filters": "^2.0.1",
     "feathers-rest": "^1.4.4",
     "nedb": "^1.8.0",
     "passport": "^0.3.2",
     "serve-favicon": "^2.3.0",
+    "uberproto": "^1.2.0",
     "winston": "^2.2.0"
   },
   "devDependencies": {

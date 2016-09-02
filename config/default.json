@@ -9,5 +9,14 @@
     },
     "local": {}
   },
+  "leanCloud": {
+    "appId": "0x08VitFksfeN3orC1v9Eiif-gzGzoHsz",
+    "appKey": "TLb63GxWqtXNMWagJpD9QBKS",
+    "appMasterKey": "dXFEfjypF2rYNKYi0qBbcbTh",
+    "appEnv": "development",
+    "appPort": 3000,
+    "appInstance": "staging",
+    "region": "CN"
+  },
   "corsWhitelist": []
 }

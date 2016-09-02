@@ -5,7 +5,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,36 +22,36 @@ const auth = require('feathers-authentication').hooks;
 exports.before = {
   all: [],
   find: [
-    auth.verifyToken(),
-    auth.populateUser(),
-    auth.restrictToAuthenticated()
+    // auth.verifyToken(),
+    // auth.populateUser(),
+    // // auth.restrictToAuthenticated()
   ],
   get: [
-    auth.verifyToken(),
-    auth.populateUser(),
-    auth.restrictToAuthenticated(),
-    auth.restrictToOwner({ ownerField: '_id' })
+    // auth.verifyToken(),
+    // auth.populateUser(),
+    // auth.restrictToAuthenticated(),
+    // auth.restrictToOwner({ ownerField: '_id' })
   ],
   create: [
-    auth.hashPassword()
+    // auth.hashPassword()
   ],
   update: [
-    auth.verifyToken(),
-    auth.populateUser(),
-    auth.restrictToAuthenticated(),
-    auth.restrictToOwner({ ownerField: '_id' })
+    // auth.verifyToken(),
+    // auth.populateUser(),
+    // auth.restrictToAuthenticated(),
+    // auth.restrictToOwner({ ownerField: '_id' })
   ],
   patch: [
-    auth.verifyToken(),
-    auth.populateUser(),
-    auth.restrictToAuthenticated(),
-    auth.restrictToOwner({ ownerField: '_id' })
+    // auth.verifyToken(),
+    // auth.populateUser(),
+    // auth.restrictToAuthenticated(),
+    // auth.restrictToOwner({ ownerField: '_id' })
   ],
   remove: [
-    auth.verifyToken(),
-    auth.populateUser(),
-    auth.restrictToAuthenticated(),
-    auth.restrictToOwner({ ownerField: '_id' })
+    // auth.verifyToken(),
+    // auth.populateUser(),
+    // auth.restrictToAuthenticated(),
+    // auth.restrictToOwner({ ownerField: '_id' })
   ]
 };
 
