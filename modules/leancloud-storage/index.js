@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-const debug = require('debug')('leancloud-storage:main');
+const debug = require('debug')('leancloud:storage:main');
 
 import _ from 'lodash';
 import rp from 'request-promise';

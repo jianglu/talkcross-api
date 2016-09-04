@@ -14,9 +14,7 @@
 // limitations under the License.
 //
 
-import _ from 'lodash';
-
-const debug = require('debug')('leancloud-authentication:local');
+const debug = require('debug')('leancloud:authentication:local');
 const rp = require('request-promise');
 
 const defaults = {
@@ -44,7 +42,6 @@ export class Service {
   // -H "Content-Type: application/json" \
   // -d '{"username":"hjiang","password":"f32@ds*@&dsa"}' \
   create(data, params) {
-
     if (!data.username) {
       throw new Error('Field \'username\' needs to be provided');
     }
